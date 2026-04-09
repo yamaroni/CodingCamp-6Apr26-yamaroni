@@ -853,3 +853,192 @@ class LinkManager {
     this.storageManager.save(this.storageKey, this.links);
   }
 }
+
+/**
+ * LinkUI - Renders link collection and handles user interactions
+ * 
+ * Responsibilities:
+ * - Render link list with controls
+ * - Handle form submission for adding links
+ * - Handle link clicks (open in new tab)
+ * - Handle delete operations
+ * - Use event delegation for dynamic link elements
+ */
+class LinkUI {
+  /**
+   * Initialize link UI
+   * @param {HTMLElement} container - DOM container element (links-section)
+   * @param {LinkManager} linkManager - Business logic instance
+   */
+  constructor(container, linkManager) {
+    this.container = container;
+    this.linkManager = linkManager;
+    this.form = null;
+    this.linkList = null;
+    this.urlInput = null;
+    this.nameInput = null;
+  }
+
+  /**
+   * Render link list and set up event listeners
+   */
+  render() {
+    // Get references to existing DOM elements
+    this.form = this.container.querySelector('#add-link-form');
+    this.linkList = this.container.querySelector('#link-list');
+    this.urlInput = this.container.querySelector('#link-url-input');
+    this.nameInput = this.container.querySelector('#link-name-input');
+
+    // Set up form submission handler
+    if (this.form) {
+      this.form.addEventListener('submit', (event) => this.handleAddLink(event));
+    }
+
+    // Set up event delegation on link list
+    if (this.linkList) {
+      this.linkList.addEventListener('click', (event) => {
+        const target = event.target;
+        const linkItem = target.closest('.link-item');
+        
+        if (!linkItem) return;
+        
+        const linkId = linkItem.dataset.linkId;
+
+        // Handle delete button
+        if (target.classList.contains('link-delete-btn')) {
+          event.preventDefault();
+          this.handleDeleteLink(linkId);
+        }
+        // Handle link click (on the link anchor itself)
+        else if (target.classList.contains('link-anchor')) {
+          // Let the browser handle the link click naturally
+          // The target="_blank" attribute will open in new tab
+        }
+      });
+    }
+
+    // Initial render of links
+    this.renderLinks();
+  }
+
+  /**
+   * Render all links to the DOM
+   */
+  renderLinks() {
+    if (!this.linkList) return;
+
+    // Clear existing links
+    this.linkList.innerHTML = '';
+
+    // Get all links and render each one
+    const links = this.linkManager.getLinks();
+    links.forEach(link => {
+      const linkItem = this.createLinkElement(link);
+      this.linkList.appendChild(linkItem);
+    });
+  }
+
+  /**
+   * Create a link list item element
+   * @param {Object} link - Link object
+   * @returns {HTMLElement} - Link list item
+   */
+  createLinkElement(link) {
+    const li = document.createElement('li');
+    li.className = 'link-item';
+    li.dataset.linkId = link.id;
+
+    // Create link anchor
+    const anchor = document.createElement('a');
+    anchor.href = link.url;
+    anchor.className = 'link-anchor';
+    anchor.textContent = link.name;
+    anchor.target = '_blank';
+    anchor.rel = 'noopener noreferrer';
+
+    // Create delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'link-delete-btn';
+    deleteBtn.textContent = 'Delete';
+
+    // Append elements
+    li.appendChild(anchor);
+    li.appendChild(deleteBtn);
+
+    return li;
+  }
+
+  /**
+   * Handle form submission to add new link
+   * @param {Event} event - Form submit event
+   */
+  handleAddLink(event) {
+    event.preventDefault();
+
+    if (!this.urlInput || !this.nameInput) return;
+
+    const url = this.urlInput.value;
+    const name = this.nameInput.value;
+    const link = this.linkManager.addLink(url, name);
+
+    if (link) {
+      // Clear input fields
+      this.urlInput.value = '';
+      this.nameInput.value = '';
+      // Re-render links
+      this.renderLinks();
+    }
+  }
+
+  /**
+   * Handle delete link
+   * @param {string} id - Link ID
+   */
+  handleDeleteLink(id) {
+    this.linkManager.deleteLink(id);
+    // Re-render to remove link from display
+    this.renderLinks();
+  }
+}
+
+// Application Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  // 1. Initialize storage
+  const storage = new LocalStorageManager();
+
+  // 2. Initialize managers
+  const greetingManager = new GreetingManager();
+  const timerManager = new TimerManager();
+  const taskManager = new TaskManager(storage);
+  const linkManager = new LinkManager(storage);
+
+  // 3. Load persisted data
+  taskManager.loadTasks();
+  linkManager.loadLinks();
+
+  // 4. Initialize UI components
+  const greetingUI = new GreetingUI(
+    document.getElementById('greeting-display'),
+    greetingManager
+  );
+  const timerUI = new TimerUI(
+    document.getElementById('timer-section'),
+    timerManager
+  );
+  const taskUI = new TaskUI(
+    document.getElementById('todo-section'),
+    taskManager
+  );
+  const linkUI = new LinkUI(
+    document.getElementById('links-section'),
+    linkManager
+  );
+
+  // 5. Start greeting automatic updates
+  greetingUI.start();
+
+  // 6. Render initial state for all components
+  timerUI.render();
+  taskUI.render();
+  linkUI.render();
+});

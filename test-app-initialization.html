@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test App Initialization</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .pass {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .fail {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    #test-container {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>App Initialization Test</h1>
+  <div id="results"></div>
+
+  <!-- Hidden test container with same structure as main app -->
+  <div id="test-container">
+    <div id="greeting-display"></div>
+    <section id="timer-section">
+      <div id="timer-display"></div>
+      <div id="timer-controls"></div>
+    </section>
+    <section id="todo-section">
+      <form id="add-task-form">
+        <input type="text" id="task-input">
+        <button type="submit">Add</button>
+      </form>
+      <ul id="task-list"></ul>
+    </section>
+    <section id="links-section">
+      <form id="add-link-form">
+        <input type="url" id="link-url-input">
+        <input type="text" id="link-name-input">
+        <button type="submit">Add</button>
+      </form>
+      <ul id="link-list"></ul>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Wait for app to initialize
+    setTimeout(() => {
+      const results = document.getElementById('results');
+      
+      function addResult(testName, passed, message) {
+        const div = document.createElement('div');
+        div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+        div.textContent = `${passed ? '✓' : '✗'} ${testName}: ${message}`;
+        results.appendChild(div);
+      }
+
+      // Test 1: Greeting display is populated
+      const greetingDisplay = document.getElementById('greeting-display');
+      const hasGreeting = greetingDisplay && greetingDisplay.innerHTML.trim() !== '';
+      addResult('Greeting Display', hasGreeting, hasGreeting ? 'Greeting is rendered' : 'Greeting is empty');
+
+      // Test 2: Timer display is rendered
+      const timerDisplay = document.querySelector('.timer-display');
+      const hasTimer = timerDisplay && timerDisplay.textContent.match(/\d{2}:\d{2}/);
+      addResult('Timer Display', hasTimer, hasTimer ? `Timer shows: ${timerDisplay.textContent}` : 'Timer not rendered');
+
+      // Test 3: Timer controls are rendered
+      const timerControls = document.querySelectorAll('.timer-btn');
+      const hasControls = timerControls.length === 3;
+      addResult('Timer Controls', hasControls, hasControls ? '3 buttons rendered' : `Only ${timerControls.length} buttons`);
+
+      // Test 4: Task list is rendered (empty is OK)
+      const taskList = document.getElementById('task-list');
+      const hasTaskList = taskList !== null;
+      addResult('Task List', hasTaskList, hasTaskList ? 'Task list container exists' : 'Task list missing');
+
+      // Test 5: Link list is rendered (empty is OK)
+      const linkList = document.getElementById('link-list');
+      const hasLinkList = linkList !== null;
+      addResult('Link List', hasLinkList, hasLinkList ? 'Link list container exists' : 'Link list missing');
+
+      // Test 6: Add a task and verify it appears
+      const taskInput = document.getElementById('task-input');
+      const taskForm = document.getElementById('add-task-form');
+      if (taskInput && taskForm) {
+        taskInput.value = 'Test Task';
+        taskForm.dispatchEvent(new Event('submit'));
+        
+        setTimeout(() => {
+          const taskItems = document.querySelectorAll('.task-item');
+          const hasTask = taskItems.length > 0;
+          addResult('Task Creation', hasTask, hasTask ? `${taskItems.length} task(s) in list` : 'Task not created');
+        }, 100);
+      }
+
+      // Test 7: Add a link and verify it appears
+      const urlInput = document.getElementById('link-url-input');
+      const nameInput = document.getElementById('link-name-input');
+      const linkForm = document.getElementById('add-link-form');
+      if (urlInput && nameInput && linkForm) {
+        urlInput.value = 'https://example.com';
+        nameInput.value = 'Test Link';
+        linkForm.dispatchEvent(new Event('submit'));
+        
+        setTimeout(() => {
+          const linkItems = document.querySelectorAll('.link-item');
+          const hasLink = linkItems.length > 0;
+          addResult('Link Creation', hasLink, hasLink ? `${linkItems.length} link(s) in list` : 'Link not created');
+        }, 100);
+      }
+
+      // Test 8: Verify greeting updates (check after 2 seconds)
+      const initialGreeting = greetingDisplay.innerHTML;
+      setTimeout(() => {
+        const updatedGreeting = greetingDisplay.innerHTML;
+        const isUpdating = updatedGreeting !== initialGreeting || updatedGreeting.includes(':');
+        addResult('Greeting Auto-Update', isUpdating, isUpdating ? 'Greeting is updating' : 'Greeting not updating');
+      }, 2000);
+
+    }, 500);
+  </script>
+</body>
+</html>

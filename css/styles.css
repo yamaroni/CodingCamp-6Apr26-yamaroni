@@ -42,6 +42,25 @@ body {
   padding: 20px;
 }
 
+#greeting-display .time {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333333;
+  margin-bottom: 10px;
+}
+
+#greeting-display .date {
+  font-size: 18px;
+  color: #666666;
+  margin-bottom: 15px;
+}
+
+#greeting-display .greeting {
+  font-size: 24px;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
 /* Timer Section */
 #timer-display {
   font-size: 48px;
@@ -76,7 +95,8 @@ input[type="url"] {
 
 input[type="text"]:focus,
 input[type="url"]:focus {
-  outline: none;
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
   border-color: #4a90e2;
 }
 
@@ -98,6 +118,11 @@ button:hover {
 
 button:active {
   transform: scale(0.98);
+}
+
+button:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
 }
 
 /* Lists */
@@ -125,9 +150,25 @@ li:last-child {
   width: 100%;
 }
 
+.task-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #4a90e2;
+}
+
+.task-item input[type="checkbox"]:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
 .task-item.completed {
   text-decoration: line-through;
   color: #5cb85c;
+}
+
+.task-item .task-text {
+  flex: 1;
 }
 
 /* Link List Specific */
@@ -148,10 +189,21 @@ li:last-child {
   text-decoration: underline;
 }
 
+.link-item a:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Small Buttons (Edit, Delete) */
 .btn-small {
   padding: 5px 10px;
   font-size: 14px;
+}
+
+.btn-small:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
 }
 
 /* Utility Classes */

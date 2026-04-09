@@ -158,7 +158,7 @@ This plan implements a client-side productivity dashboard using vanilla HTML, CS
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 9. Implement quick links component
-  - [-] 9.1 Create LinkManager class
+  - [x] 9.1 Create LinkManager class
     - Implement constructor accepting LocalStorageManager
     - Implement `loadLinks()` to retrieve from storage
     - Implement `getLinks()` to return link array
@@ -200,7 +200,7 @@ This plan implements a client-side productivity dashboard using vanilla HTML, CS
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 11. Implement CSS styling
-  - [ ] 11.1 Create `css/styles.css` with complete styling
+  - [x] 11.1 Create `css/styles.css` with complete styling
     - Add CSS reset/base styles
     - Style dashboard container with vertical layout
     - Style greeting section (typography, spacing)

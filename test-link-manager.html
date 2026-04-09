@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkManager Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 4px;
+    }
+    .pass {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .fail {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    h2 {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>LinkManager Test Suite</h1>
+  <div id="test-results"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const resultsContainer = document.getElementById('test-results');
+    let testCount = 0;
+    let passCount = 0;
+
+    function logTest(name, passed, message = '') {
+      testCount++;
+      if (passed) passCount++;
+      
+      const div = document.createElement('div');
+      div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      div.textContent = `${passed ? '✓' : '✗'} ${name}${message ? ': ' + message : ''}`;
+      resultsContainer.appendChild(div);
+    }
+
+    function runTests() {
+
+    // Clear localStorage before tests
+    localStorage.clear();
+
+    // Test 1: Constructor and initialization
+    const storage = new LocalStorageManager();
+    const linkManager = new LinkManager(storage);
+    logTest('Constructor initializes correctly', 
+      linkManager.links !== undefined && Array.isArray(linkManager.links));
+
+    // Test 2: getLinks returns empty array initially
+    logTest('getLinks returns empty array initially', 
+      linkManager.getLinks().length === 0);
+
+    // Test 3: addLink with valid URL and name
+    const link1 = linkManager.addLink('https://example.com', 'Example Site');
+    logTest('addLink creates link with valid inputs', 
+      link1 !== null && link1.url === 'https://example.com' && link1.name === 'Example Site');
+
+    // Test 4: Link has required properties
+    logTest('Link has id, url, name, createdAt', 
+      link1.id && link1.url && link1.name && link1.createdAt);
+
+    // Test 5: addLink trims whitespace from URL
+    const link2 = linkManager.addLink('  https://github.com  ', 'GitHub');
+    logTest('addLink trims whitespace from URL', 
+      link2 !== null && link2.url === 'https://github.com');
+
+    // Test 6: addLink trims whitespace from name
+    const link3 = linkManager.addLink('https://test.com', '  Test Site  ');
+    logTest('addLink trims whitespace from name', 
+      link3 !== null && link3.name === 'Test Site');
+
+    // Test 7: addLink rejects empty URL
+    const invalidLink1 = linkManager.addLink('', 'Test');
+    logTest('addLink rejects empty URL', 
+      invalidLink1 === null);
+
+    // Test 8: addLink rejects whitespace-only URL
+    const invalidLink2 = linkManager.addLink('   ', 'Test');
+    logTest('addLink rejects whitespace-only URL', 
+      invalidLink2 === null);
+
+    // Test 9: addLink rejects empty name
+    const invalidLink3 = linkManager.addLink('https://test.com', '');
+    logTest('addLink rejects empty name', 
+      invalidLink3 === null);
+
+    // Test 10: addLink rejects whitespace-only name
+    const invalidLink4 = linkManager.addLink('https://test.com', '   ');
+    logTest('addLink rejects whitespace-only name', 
+      invalidLink4 === null);
+
+    // Test 11: getLinks returns correct count
+    logTest('getLinks returns correct count', 
+      linkManager.getLinks().length === 3);
+
+    // Test 12: Unique ID generation
+    logTest('Generated IDs are unique', 
+      link1.id !== link2.id && link2.id !== link3.id);
+
+    // Test 13: deleteLink removes link
+    const beforeDelete = linkManager.getLinks().length;
+    linkManager.deleteLink(link1.id);
+    logTest('deleteLink removes link from array', 
+      linkManager.getLinks().length === beforeDelete - 1);
+
+    // Test 14: Deleted link is not in array
+    logTest('Deleted link is not in array', 
+      !linkManager.getLinks().find(l => l.id === link1.id));
+
+    // Test 15: Other links remain after delete
+    logTest('Other links remain after delete', 
+      linkManager.getLinks().find(l => l.id === link2.id) !== undefined);
+
+    // Test 16: deleteLink with non-existent ID doesn't crash
+    const beforeDelete2 = linkManager.getLinks().length;
+    linkManager.deleteLink('nonexistent');
+    logTest('deleteLink handles non-existent ID gracefully', 
+      linkManager.getLinks().length === beforeDelete2);
+
+    // Test 17: saveLinks and loadLinks persistence
+    linkManager.saveLinks();
+    const newLinkManager = new LinkManager(storage);
+    newLinkManager.loadLinks();
+    logTest('loadLinks retrieves saved links', 
+      newLinkManager.getLinks().length === linkManager.getLinks().length);
+
+    // Test 18: Loaded links have correct properties
+    const loadedLinks = newLinkManager.getLinks();
+    const hasCorrectProps = loadedLinks.every(l => 
+      l.id && l.url && l.name && l.createdAt
+    );
+    logTest('Loaded links have correct properties', hasCorrectProps);
+
+    // Test 19: Loaded links have correct data
+    const loadedLink = loadedLinks.find(l => l.id === link2.id);
+    logTest('Loaded links have correct data', 
+      loadedLink && loadedLink.url === 'https://github.com' && loadedLink.name === 'GitHub');
+
+    // Summary
+    const summary = document.createElement('h2');
+    summary.textContent = `Results: ${passCount}/${testCount} tests passed`;
+    summary.style.color = passCount === testCount ? '#155724' : '#721c24';
+    resultsContainer.appendChild(summary);
+  }
+
+  // Run tests when page loads
+  runTests();
+  </script>
+</body>
+</html>
