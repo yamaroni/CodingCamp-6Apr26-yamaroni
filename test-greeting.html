@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GreetingManager Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .test-result {
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .pass {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .fail {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>GreetingManager Test</h1>
+  <div id="test-results"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const resultsDiv = document.getElementById('test-results');
+    
+    function addResult(testName, passed, message) {
+      const div = document.createElement('div');
+      div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      div.textContent = `${passed ? '✓' : '✗'} ${testName}: ${message}`;
+      resultsDiv.appendChild(div);
+    }
+
+    // Test GreetingManager
+    const greetingManager = new GreetingManager();
+
+    // Test 1: getCurrentTime returns 12-hour format with AM/PM
+    const time = greetingManager.getCurrentTime();
+    const timeRegex = /^(1[0-2]|[1-9]):[0-5][0-9] (AM|PM)$/;
+    addResult(
+      'getCurrentTime format',
+      timeRegex.test(time),
+      `Returned: "${time}"`
+    );
+
+    // Test 2: getCurrentDate returns day of week, month, and day
+    const date = greetingManager.getCurrentDate();
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    const hasDayOfWeek = daysOfWeek.some(day => date.includes(day));
+    const hasMonth = months.some(month => date.includes(month));
+    const hasDay = /\d+/.test(date);
+    
+    addResult(
+      'getCurrentDate format',
+      hasDayOfWeek && hasMonth && hasDay,
+      `Returned: "${date}"`
+    );
+
+    // Test 3: getGreeting returns appropriate greeting
+    const greeting = greetingManager.getGreeting();
+    const validGreetings = ['Good morning', 'Good afternoon', 'Good evening', 'Good night'];
+    addResult(
+      'getGreeting returns valid greeting',
+      validGreetings.includes(greeting),
+      `Returned: "${greeting}"`
+    );
+
+    // Test 4: Test greeting logic with specific times
+    const now = new Date();
+    const currentHour = now.getHours();
+    let expectedGreeting;
+    
+    if (currentHour >= 5 && currentHour < 12) {
+      expectedGreeting = 'Good morning';
+    } else if (currentHour >= 12 && currentHour < 17) {
+      expectedGreeting = 'Good afternoon';
+    } else if (currentHour >= 17 && currentHour < 21) {
+      expectedGreeting = 'Good evening';
+    } else {
+      expectedGreeting = 'Good night';
+    }
+    
+    addResult(
+      'getGreeting matches current time',
+      greeting === expectedGreeting,
+      `Expected "${expectedGreeting}" for hour ${currentHour}, got "${greeting}"`
+    );
+
+    // Display current output
+    const outputDiv = document.createElement('div');
+    outputDiv.innerHTML = `
+      <h2>Current Output</h2>
+      <p><strong>Time:</strong> ${time}</p>
+      <p><strong>Date:</strong> ${date}</p>
+      <p><strong>Greeting:</strong> ${greeting}</p>
+      <p><strong>Current Hour:</strong> ${currentHour}</p>
+    `;
+    resultsDiv.appendChild(outputDiv);
+  </script>
+</body>
+</html>

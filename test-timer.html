@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimerManager Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .pass {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .fail {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    h2 {
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>TimerManager Test Suite</h1>
+  <div id="test-results"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const resultsContainer = document.getElementById('test-results');
+    let passCount = 0;
+    let failCount = 0;
+
+    function assert(condition, testName) {
+      const result = document.createElement('div');
+      result.className = 'test-result ' + (condition ? 'pass' : 'fail');
+      result.textContent = (condition ? '✓ PASS: ' : '✗ FAIL: ') + testName;
+      resultsContainer.appendChild(result);
+      
+      if (condition) {
+        passCount++;
+      } else {
+        failCount++;
+      }
+    }
+
+    function assertEquals(actual, expected, testName) {
+      const condition = actual === expected;
+      assert(condition, testName + ` (expected: ${expected}, got: ${actual})`);
+    }
+
+    // Run tests
+    console.log('Running TimerManager tests...');
+
+    // Test 1: Initialization
+    const timer1 = new TimerManager();
+    assertEquals(timer1.remainingSeconds, 1500, 'Timer initializes with 1500 seconds');
+    assertEquals(timer1.isRunning(), false, 'Timer starts in stopped state');
+    assertEquals(timer1.getFormattedTime(), '25:00', 'Initial formatted time is 25:00');
+
+    // Test 2: Start method
+    const timer2 = new TimerManager();
+    timer2.start();
+    assertEquals(timer2.isRunning(), true, 'start() sets running state to true');
+
+    // Test 3: Stop method
+    const timer3 = new TimerManager();
+    timer3.start();
+    timer3.stop();
+    assertEquals(timer3.isRunning(), false, 'stop() sets running state to false');
+
+    // Test 4: Reset method
+    const timer4 = new TimerManager();
+    timer4.remainingSeconds = 500;
+    timer4.start();
+    timer4.reset();
+    assertEquals(timer4.remainingSeconds, 1500, 'reset() restores 1500 seconds');
+    assertEquals(timer4.isRunning(), false, 'reset() stops the timer');
+
+    // Test 5: Tick method
+    const timer5 = new TimerManager();
+    timer5.remainingSeconds = 10;
+    const reachedZero = timer5.tick();
+    assertEquals(timer5.remainingSeconds, 9, 'tick() decrements by 1 second');
+    assertEquals(reachedZero, false, 'tick() returns false when not at zero');
+
+    // Test 6: Tick at zero
+    const timer6 = new TimerManager();
+    timer6.remainingSeconds = 1;
+    timer6.start();
+    const reachedZero6 = timer6.tick();
+    assertEquals(timer6.remainingSeconds, 0, 'tick() reaches 0');
+    assertEquals(reachedZero6, true, 'tick() returns true when reaching zero');
+    assertEquals(timer6.isRunning(), false, 'Timer automatically stops at zero');
+
+    // Test 7: Tick below zero
+    const timer7 = new TimerManager();
+    timer7.remainingSeconds = 0;
+    timer7.tick();
+    assertEquals(timer7.remainingSeconds, 0, 'tick() does not go below zero');
+
+    // Test 8: Formatted time - various values
+    const timer8 = new TimerManager();
+    timer8.remainingSeconds = 1500;
+    assertEquals(timer8.getFormattedTime(), '25:00', 'Format 1500s as 25:00');
+    
+    timer8.remainingSeconds = 599;
+    assertEquals(timer8.getFormattedTime(), '09:59', 'Format 599s as 09:59');
+    
+    timer8.remainingSeconds = 60;
+    assertEquals(timer8.getFormattedTime(), '01:00', 'Format 60s as 01:00');
+    
+    timer8.remainingSeconds = 5;
+    assertEquals(timer8.getFormattedTime(), '00:05', 'Format 5s as 00:05');
+    
+    timer8.remainingSeconds = 0;
+    assertEquals(timer8.getFormattedTime(), '00:00', 'Format 0s as 00:00');
+
+    // Test 9: Full countdown sequence
+    const timer9 = new TimerManager();
+    timer9.remainingSeconds = 3;
+    timer9.start();
+    assertEquals(timer9.isRunning(), true, 'Timer running before countdown');
+    timer9.tick(); // 2
+    assertEquals(timer9.remainingSeconds, 2, 'After 1st tick: 2 seconds');
+    timer9.tick(); // 1
+    assertEquals(timer9.remainingSeconds, 1, 'After 2nd tick: 1 second');
+    timer9.tick(); // 0
+    assertEquals(timer9.remainingSeconds, 0, 'After 3rd tick: 0 seconds');
+    assertEquals(timer9.isRunning(), false, 'Timer stopped after reaching zero');
+
+    // Display summary
+    const summary = document.createElement('h2');
+    summary.textContent = `Test Summary: ${passCount} passed, ${failCount} failed`;
+    summary.style.color = failCount === 0 ? '#155724' : '#721c24';
+    resultsContainer.insertBefore(summary, resultsContainer.firstChild);
+
+    console.log(`Test Summary: ${passCount} passed, ${failCount} failed`);
+  </script>
+</body>
+</html>

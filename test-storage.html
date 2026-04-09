@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalStorageManager Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .test-result {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .pass {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .fail {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+</head>
+<body>
+  <h1>LocalStorageManager Test Suite</h1>
+  <div id="test-results"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+    const resultsDiv = document.getElementById('test-results');
+    
+    function addResult(testName, passed, message = '') {
+      const div = document.createElement('div');
+      div.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      div.textContent = `${passed ? '✓' : '✗'} ${testName}${message ? ': ' + message : ''}`;
+      resultsDiv.appendChild(div);
+    }
+
+    // Run tests
+    const storage = new LocalStorageManager();
+    
+    // Test 1: Save and load simple data
+    const testData1 = { name: 'Test', value: 123 };
+    const saved1 = storage.save('test-key-1', testData1);
+    const loaded1 = storage.load('test-key-1', null);
+    addResult('Save and load simple data', 
+      saved1 && JSON.stringify(loaded1) === JSON.stringify(testData1));
+
+    // Test 2: Load with default value when key doesn't exist
+    const loaded2 = storage.load('non-existent-key', 'default-value');
+    addResult('Load non-existent key returns default', loaded2 === 'default-value');
+
+    // Test 3: Save and load array
+    const testData3 = [{ id: '1', text: 'Task 1' }, { id: '2', text: 'Task 2' }];
+    storage.save('test-key-3', testData3);
+    const loaded3 = storage.load('test-key-3', []);
+    addResult('Save and load array', 
+      Array.isArray(loaded3) && loaded3.length === 2 && loaded3[0].text === 'Task 1');
+
+    // Test 4: Remove key
+    storage.save('test-key-4', 'some data');
+    storage.remove('test-key-4');
+    const loaded4 = storage.load('test-key-4', 'default');
+    addResult('Remove key', loaded4 === 'default');
+
+    // Test 5: Parse error handling (corrupt data)
+    localStorage.setItem('corrupt-key', '{invalid json}');
+    const loaded5 = storage.load('corrupt-key', 'fallback');
+    addResult('Parse error returns default', loaded5 === 'fallback');
+
+    // Test 6: ClearAll removes application keys
+    storage.save('productivity-dashboard-tasks', [{ id: '1' }]);
+    storage.save('productivity-dashboard-links', [{ id: '2' }]);
+    storage.clearAll();
+    const tasks = storage.load('productivity-dashboard-tasks', []);
+    const links = storage.load('productivity-dashboard-links', []);
+    addResult('ClearAll removes app data', 
+      tasks.length === 0 && links.length === 0);
+
+    // Test 7: Save returns boolean
+    const result7 = storage.save('test-key-7', { data: 'test' });
+    addResult('Save returns true on success', result7 === true);
+
+    // Cleanup
+    storage.remove('test-key-1');
+    storage.remove('test-key-3');
+    storage.remove('test-key-7');
+    storage.remove('corrupt-key');
+    
+    console.log('All tests completed');
+  </script>
+</body>
+</html>

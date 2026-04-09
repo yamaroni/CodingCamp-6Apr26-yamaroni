@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productivity Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Greeting Section -->
+    <section id="greeting-section" class="component">
+      <div id="greeting-display"></div>
+    </section>
+
+    <!-- Timer Section -->
+    <section id="timer-section" class="component">
+      <h2>Focus Timer</h2>
+      <div id="timer-display"></div>
+      <div id="timer-controls"></div>
+    </section>
+
+    <!-- To-Do List Section -->
+    <section id="todo-section" class="component">
+      <h2>To-Do List</h2>
+      <form id="add-task-form">
+        <input type="text" id="task-input" placeholder="Add a new task...">
+        <button type="submit">Add</button>
+      </form>
+      <ul id="task-list"></ul>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section id="links-section" class="component">
+      <h2>Quick Links</h2>
+      <form id="add-link-form">
+        <input type="url" id="link-url-input" placeholder="URL">
+        <input type="text" id="link-name-input" placeholder="Name">
+        <button type="submit">Add</button>
+      </form>
+      <ul id="link-list"></ul>
+    </section>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

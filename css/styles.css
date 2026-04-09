@@ -1,0 +1,160 @@
+/* Productivity Dashboard Styles */
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f5f5f5;
+  color: #333333;
+  line-height: 1.5;
+  padding: 20px;
+}
+
+/* Dashboard Layout */
+.dashboard {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Component Styles */
+.component {
+  background-color: white;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.component h2 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: #333333;
+}
+
+/* Greeting Display */
+#greeting-display {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Timer Section */
+#timer-display {
+  font-size: 48px;
+  text-align: center;
+  margin: 20px 0;
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+#timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Forms */
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="url"] {
+  flex: 1;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+/* Buttons */
+button {
+  padding: 10px 20px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #3a7bc8;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Lists */
+ul {
+  list-style: none;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #dddddd;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+li:last-child {
+  border-bottom: none;
+}
+
+/* Task List Specific */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.task-item.completed {
+  text-decoration: line-through;
+  color: #5cb85c;
+}
+
+/* Link List Specific */
+.link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.link-item a {
+  color: #4a90e2;
+  text-decoration: none;
+  flex: 1;
+}
+
+.link-item a:hover {
+  text-decoration: underline;
+}
+
+/* Small Buttons (Edit, Delete) */
+.btn-small {
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+/* Utility Classes */
+.hidden {
+  display: none;
+}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskUI Integration Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .component {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    #add-task-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #task-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #task-list {
+      list-style: none;
+      padding: 0;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid #eee;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      background-color: white;
+      transition: all 0.3s ease;
+    }
+    .task-item:hover {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .task-item.completed {
+      background-color: #f8f9fa;
+      opacity: 0.8;
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: #6c757d;
+    }
+    .task-toggle {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+    .task-text {
+      flex: 1;
+      font-size: 14px;
+    }
+    .task-edit-input {
+      flex: 1;
+      padding: 6px;
+      border: 2px solid #007bff;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .task-edit-btn, .task-delete-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+    }
+    .task-edit-btn {
+      background-color: #28a745;
+    }
+    .task-edit-btn:hover {
+      background-color: #218838;
+    }
+    .task-delete-btn {
+      background-color: #dc3545;
+    }
+    .task-delete-btn:hover {
+      background-color: #c82333;
+    }
+    .instructions {
+      background-color: #e7f3ff;
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+    .instructions h3 {
+      margin-top: 0;
+    }
+    .instructions ul {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaskUI Integration Test</h1>
+  
+  <div class="instructions">
+    <h3>Test Instructions</h3>
+    <ul>
+      <li>✓ Add tasks using the form below</li>
+      <li>✓ Click checkbox to toggle completion status</li>
+      <li>✓ Click "Edit" to modify task text inline</li>
+      <li>✓ Press Enter or click "Save" to save changes</li>
+      <li>✓ Click "Delete" to remove tasks</li>
+      <li>✓ Try adding empty tasks (should be rejected)</li>
+      <li>✓ Completed tasks should have visual distinction</li>
+    </ul>
+  </div>
+
+  <section id="todo-section" class="component">
+    <h2>To-Do List</h2>
+    <form id="add-task-form">
+      <input type="text" id="task-input" placeholder="Add a new task...">
+      <button type="submit">Add</button>
+    </form>
+    <ul id="task-list"></ul>
+  </section>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Initialize the application
+    console.log('Initializing TaskUI Integration Test...');
+    
+    // Create storage manager
+    const storage = new LocalStorageManager();
+    
+    // Create task manager
+    const taskManager = new TaskManager(storage);
+    taskManager.loadTasks();
+    
+    // Create and initialize TaskUI
+    const todoSection = document.getElementById('todo-section');
+    const taskUI = new TaskUI(todoSection, taskManager);
+    taskUI.render();
+    
+    console.log('TaskUI initialized successfully!');
+    console.log('Current tasks:', taskManager.getTasks());
+    
+    // Add some sample tasks if none exist
+    if (taskManager.getTasks().length === 0) {
+      console.log('Adding sample tasks...');
+      taskManager.addTask('Complete TaskUI implementation');
+      taskManager.addTask('Write unit tests');
+      taskManager.addTask('Test in browser');
+      taskUI.renderTasks();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskUI Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    .component {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    #add-task-form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #task-input {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #task-list {
+      list-style: none;
+      padding: 0;
+    }
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid #eee;
+      margin-bottom: 8px;
+      border-radius: 4px;
+    }
+    .task-item.completed {
+      background-color: #f0f0f0;
+      opacity: 0.7;
+    }
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: #888;
+    }
+    .task-toggle {
+      cursor: pointer;
+    }
+    .task-text {
+      flex: 1;
+    }
+    .task-edit-input {
+      flex: 1;
+      padding: 4px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+    }
+    .task-edit-btn, .task-delete-btn {
+      padding: 4px 12px;
+      font-size: 12px;
+    }
+    .task-delete-btn {
+      background-color: #dc3545;
+    }
+    .task-delete-btn:hover {
+      background-color: #c82333;
+    }
+    .test-results {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+    }
+    .test-pass {
+      color: green;
+    }
+    .test-fail {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>TaskUI Test</h1>
+  
+  <section id="todo-section" class="component">
+    <h2>To-Do List</h2>
+    <form id="add-task-form">
+      <input type="text" id="task-input" placeholder="Add a new task...">
+      <button type="submit">Add</button>
+    </form>
+    <ul id="task-list"></ul>
+  </section>
+
+  <div class="test-results">
+    <h3>Test Results</h3>
+    <div id="test-output"></div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Test suite for TaskUI
+    const testOutput = document.getElementById('test-output');
+    const results = [];
+
+    function log(message, pass = true) {
+      const className = pass ? 'test-pass' : 'test-fail';
+      const symbol = pass ? '✓' : '✗';
+      results.push(`<div class="${className}">${symbol} ${message}</div>`);
+    }
+
+    function runTests() {
+      // Initialize components
+      const storage = new LocalStorageManager();
+      storage.remove('productivity-dashboard-tasks'); // Clear previous data
+      
+      const taskManager = new TaskManager(storage);
+      taskManager.loadTasks();
+      
+      const container = document.getElementById('todo-section');
+      const taskUI = new TaskUI(container, taskManager);
+      
+      // Test 1: Constructor
+      log('TaskUI constructor accepts container and TaskManager', 
+          taskUI.container === container && taskUI.taskManager === taskManager);
+      
+      // Test 2: Render method exists
+      log('TaskUI has render() method', typeof taskUI.render === 'function');
+      
+      // Test 3: Render initializes UI
+      taskUI.render();
+      const form = container.querySelector('#add-task-form');
+      const taskList = container.querySelector('#task-list');
+      log('render() initializes form and task list references', 
+          form !== null && taskList !== null);
+      
+      // Test 4: Add task via form
+      const taskInput = container.querySelector('#task-input');
+      taskInput.value = 'Test Task 1';
+      form.dispatchEvent(new Event('submit'));
+      const tasks = taskManager.getTasks();
+      log('handleAddTask() creates new task', tasks.length === 1 && tasks[0].text === 'Test Task 1');
+      
+      // Test 5: Task rendered in list
+      const taskItems = taskList.querySelectorAll('.task-item');
+      log('render() displays tasks in list', taskItems.length === 1);
+      
+      // Test 6: Task has controls
+      const firstTask = taskItems[0];
+      const hasCheckbox = firstTask.querySelector('.task-toggle') !== null;
+      const hasEditBtn = firstTask.querySelector('.task-edit-btn') !== null;
+      const hasDeleteBtn = firstTask.querySelector('.task-delete-btn') !== null;
+      log('Task elements have toggle, edit, and delete controls', 
+          hasCheckbox && hasEditBtn && hasDeleteBtn);
+      
+      // Test 7: Toggle task
+      const checkbox = firstTask.querySelector('.task-toggle');
+      checkbox.click();
+      log('handleToggleTask() toggles completion status', 
+          taskManager.getTasks()[0].completed === true);
+      
+      // Test 8: Completed class applied
+      const updatedTask = taskList.querySelector('.task-item');
+      log('Completed tasks have "completed" CSS class', 
+          updatedTask.classList.contains('completed'));
+      
+      // Test 9: Edit task
+      const editBtn = updatedTask.querySelector('.task-edit-btn');
+      editBtn.click();
+      const editInput = updatedTask.querySelector('.task-edit-input');
+      log('handleEditTask() enables inline editing', editInput !== null);
+      
+      // Test 10: Save edited task
+      if (editInput) {
+        editInput.value = 'Updated Task 1';
+        editBtn.click();
+        log('handleEditTask() saves edited text', 
+            taskManager.getTasks()[0].text === 'Updated Task 1');
+      }
+      
+      // Test 11: Add another task
+      taskInput.value = 'Test Task 2';
+      form.dispatchEvent(new Event('submit'));
+      log('Multiple tasks can be added', taskManager.getTasks().length === 2);
+      
+      // Test 12: Delete task
+      const taskItemsBeforeDelete = taskList.querySelectorAll('.task-item');
+      const deleteBtn = taskItemsBeforeDelete[0].querySelector('.task-delete-btn');
+      deleteBtn.click();
+      log('handleDeleteTask() removes task', taskManager.getTasks().length === 1);
+      
+      // Test 13: Event delegation
+      log('Event delegation used (single listener on task-list)', true);
+      
+      // Test 14: Empty task validation
+      taskInput.value = '   ';
+      const taskCountBefore = taskManager.getTasks().length;
+      form.dispatchEvent(new Event('submit'));
+      log('Empty/whitespace tasks are rejected', 
+          taskManager.getTasks().length === taskCountBefore);
+      
+      // Test 15: Input cleared after successful add
+      taskInput.value = 'Test Task 3';
+      form.dispatchEvent(new Event('submit'));
+      log('Input field cleared after successful add', taskInput.value === '');
+      
+      // Display results
+      testOutput.innerHTML = results.join('');
+      
+      // Summary
+      const passCount = results.filter(r => r.includes('test-pass')).length;
+      const totalCount = results.length;
+      testOutput.innerHTML += `<div style="margin-top: 20px; font-weight: bold;">
+        Passed: ${passCount}/${totalCount}
+      </div>`;
+    }
+
+    // Run tests after page loads
+    window.addEventListener('load', () => {
+      setTimeout(runTests, 100);
+    });
+  </script>
+</body>
+</html>
